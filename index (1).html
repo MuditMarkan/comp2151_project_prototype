@@ -1,0 +1,1956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARMS — Interactive Wireframe Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════ */
+:root {
+  /* Core palette */
+  --ink:       #18181B;
+  --ink2:      #3F3F46;
+  --muted:     #71717A;
+  --faint:     #A1A1AA;
+  --border:    #D4D4D8;
+  --line:      #E4E4E7;
+  --surface:   #FAFAFA;
+  --bg:        #F4F4F5;
+  --white:     #FFFFFF;
+
+  /* Brand */
+  --blue:      #2563EB;
+  --blue-lt:   #DBEAFE;
+  --blue-dk:   #1D4ED8;
+  --green:     #059669;
+  --green-lt:  #D1FAE5;
+  --amber:     #D97706;
+  --amber-lt:  #FEF3C7;
+  --red:       #DC2626;
+  --red-lt:    #FEE2E2;
+  --purple:    #7C3AED;
+  --purple-lt: #EDE9FE;
+
+  /* Sidebar */
+  --sb-bg:     #18181B;
+  --sb-text:   #A1A1AA;
+  --sb-active: #FFFFFF;
+  --sb-hover:  #27272A;
+  --sb-accent: #3B82F6;
+
+  /* Typography */
+  --font-ui:   'DM Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --font-disp: 'DM Serif Display', serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-ui);
+  background: #0F0F10;
+  color: var(--ink);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════════
+   OUTER SHELL
+═══════════════════════════════════════════ */
+.outer {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(37,99,235,.18) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 90% 80%, rgba(5,150,105,.10) 0%, transparent 60%),
+    #0F0F10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 20px 48px;
+}
+
+/* ═══════════════════════════════════════════
+   TOP CONTROL BAR
+═══════════════════════════════════════════ */
+.ctrl {
+  width: 100%;
+  max-width: 1160px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.ctrl-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ctrl-logo-mark {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, #2563EB 0%, #059669 100%);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.1), 0 4px 16px rgba(37,99,235,.35);
+  flex-shrink: 0;
+}
+.ctrl-logo-mark svg { width: 20px; height: 20px; }
+.ctrl-wordmark {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: .02em;
+  line-height: 1.2;
+}
+.ctrl-wordmark span {
+  display: block;
+  font-size: 10px;
+  font-weight: 400;
+  color: rgba(255,255,255,.45);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.ctrl-groups {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 10px;
+  padding: 5px;
+}
+.grp-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,.45);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .18s ease;
+  white-space: nowrap;
+}
+.grp-btn .dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .5;
+  flex-shrink: 0;
+}
+.grp-btn:hover { color: rgba(255,255,255,.8); background: rgba(255,255,255,.07); }
+.grp-btn.on {
+  background: rgba(255,255,255,.12);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
+}
+.grp-btn.on .dot { opacity: 1; }
+.grp-btn.c.on .dot { background: #3B82F6; }
+.grp-btn.d.on .dot { background: #F59E0B; }
+.grp-btn.t.on .dot { background: #10B981; }
+.grp-btn.m.on .dot { background: #A78BFA; }
+
+.ctrl-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(255,255,255,.3);
+  white-space: nowrap;
+}
+.proto-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(37,99,235,.2);
+  border: 1px solid rgba(37,99,235,.4);
+  border-radius: 4px;
+  padding: 3px 9px;
+  color: #93C5FD;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.proto-chip::before {
+  content: '';
+  width: 5px; height: 5px;
+  background: #3B82F6;
+  border-radius: 50%;
+  animation: blink 2s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
+
+/* ═══════════════════════════════════════════
+   BROWSER FRAME
+═══════════════════════════════════════════ */
+.browser {
+  width: 100%;
+  max-width: 1160px;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.08),
+    0 32px 80px rgba(0,0,0,.55),
+    0 8px 24px rgba(0,0,0,.35);
+}
+
+/* Browser chrome bar */
+.bchrome {
+  background: #27272A;
+  padding: 11px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.bchrome-dots { display: flex; gap: 7px; }
+.bchrome-dots span {
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.bchrome-dots span:nth-child(1) { background: #F85149; }
+.bchrome-dots span:nth-child(2) { background: #E3B341; }
+.bchrome-dots span:nth-child(3) { background: #3FB950; }
+
+.bchrome-nav {
+  display: flex;
+  gap: 6px;
+}
+.bchrome-nav button {
+  width: 26px; height: 26px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 5px;
+  color: rgba(255,255,255,.35);
+  font-size: 13px;
+  cursor: default;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.burl-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,0,0,.3);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 7px;
+  padding: 6px 12px;
+}
+.burl-lock { font-size: 11px; color: #3FB950; }
+.burl-text {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: rgba(255,255,255,.6);
+  flex: 1;
+}
+.bchrome-label {
+  background: rgba(37,99,235,.25);
+  border: 1px solid rgba(59,130,246,.4);
+  border-radius: 5px;
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #93C5FD;
+  white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════
+   SCREEN TABS INSIDE FRAME
+═══════════════════════════════════════════ */
+.stabs-bar {
+  background: #1F1F23;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  display: flex;
+  overflow-x: auto;
+  padding: 0 12px;
+  gap: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,.1) transparent;
+}
+.stabs-bar::-webkit-scrollbar { height: 3px; }
+.stabs-bar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 2px; }
+
+.stab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: rgba(255,255,255,.35);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 10px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+  letter-spacing: .01em;
+}
+.stab:hover { color: rgba(255,255,255,.7); }
+.stab.on {
+  color: #93C5FD;
+  border-bottom-color: #3B82F6;
+  font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════
+   BROWSER VIEWPORT
+═══════════════════════════════════════════ */
+.bviewport {
+  background: var(--bg);
+  height: 640px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.bviewport::-webkit-scrollbar { width: 6px; }
+.bviewport::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* SCREEN VISIBILITY */
+.screen { display: none; }
+.screen.on { display: block; }
+
+/* ═══════════════════════════════════════════
+   SCREEN BADGE
+═══════════════════════════════════════════ */
+.sbadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  border-radius: 6px;
+  padding: 5px 12px;
+  margin-bottom: 18px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #1D4ED8;
+}
+.sbadge .sn {
+  background: #2563EB;
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: .04em;
+}
+.sbadge .st { color: #1E40AF; font-weight: 500; }
+
+/* ═══════════════════════════════════════════
+   LAYOUT: SHELL (sidebar + main)
+═══════════════════════════════════════════ */
+.shell { display: flex; min-height: 590px; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--sb-bg);
+  border-right: 1px solid rgba(255,255,255,.06);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.sb-user {
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.sb-role {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  color: rgba(255,255,255,.3);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: 4px;
+}
+.sb-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -.01em;
+}
+.sb-avatar {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, #2563EB, #7C3AED);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.sb-nav { flex: 1; padding: 10px 0; }
+.sb-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 18px;
+  color: var(--sb-text);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  cursor: default;
+  transition: all .12s;
+  position: relative;
+}
+.sb-link:hover { color: #fff; background: var(--sb-hover); }
+.sb-link.on {
+  color: var(--sb-active);
+  background: rgba(59,130,246,.12);
+  border-left-color: var(--sb-accent);
+}
+.sb-link .icon { font-size: 15px; width: 20px; text-align: center; }
+.sb-sep { border-top: 1px solid rgba(255,255,255,.06); margin: 8px 0; }
+.sb-out { color: #F87171 !important; }
+
+.sb-footer {
+  padding: 12px 18px;
+  border-top: 1px solid rgba(255,255,255,.06);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: rgba(255,255,255,.2);
+}
+
+/* MAIN */
+.main {
+  flex: 1;
+  padding: 24px 28px;
+  background: var(--bg);
+  overflow-y: auto;
+  min-width: 0;
+}
+
+/* AUTH SCREENS */
+.auth-bg {
+  min-height: 590px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(150deg, #EFF6FF 0%, #F0FDF4 50%, #F5F3FF 100%);
+  padding: 28px 16px;
+  position: relative;
+  overflow: hidden;
+}
+.auth-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(37,99,235,.07) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(5,150,105,.07) 0%, transparent 50%);
+  pointer-events: none;
+}
+.auth-box {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 36px 32px;
+  width: 100%;
+  max-width: 440px;
+  border: 1px solid var(--line);
+  box-shadow: 0 4px 24px rgba(0,0,0,.08), 0 1px 4px rgba(0,0,0,.04);
+  position: relative;
+  z-index: 1;
+}
+.auth-logomark {
+  width: 48px; height: 48px;
+  background: linear-gradient(135deg, #2563EB 0%, #059669 100%);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+  box-shadow: 0 4px 16px rgba(37,99,235,.3);
+}
+.auth-title {
+  font-size: 22px;
+  font-weight: 800;
+  text-align: center;
+  color: var(--ink);
+  letter-spacing: -.02em;
+  margin-bottom: 4px;
+}
+.auth-sub {
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 24px;
+  font-style: italic;
+}
+
+/* ═══════════════════════════════════════════
+   FORMS
+═══════════════════════════════════════════ */
+.fg { margin-bottom: 14px; }
+.fg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink2);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+label .req { color: var(--red); }
+input, select, textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--white);
+  font-family: var(--font-ui);
+  outline: none;
+  transition: border-color .15s;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+}
+textarea { resize: vertical; min-height: 80px; }
+.hint { font-size: 11px; color: var(--muted); margin-top: 4px; font-style: italic; }
+.ro {
+  background: var(--bg) !important;
+  color: var(--muted) !important;
+  border-color: var(--line) !important;
+}
+.cbrow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+}
+.cbrow input[type=checkbox] {
+  width: 16px; height: 16px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--blue);
+}
+.cbrow label {
+  font-size: 13px;
+  color: var(--ink2);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  margin: 0;
+}
+
+/* ═══════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-ui);
+  cursor: default;
+  border: none;
+  letter-spacing: -.01em;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--blue); color: #fff; box-shadow: 0 1px 3px rgba(37,99,235,.3); }
+.btn-primary:hover { background: var(--blue-dk); }
+.btn-secondary { background: var(--white); color: var(--ink2); border: 1.5px solid var(--border); }
+.btn-secondary:hover { background: var(--bg); }
+.btn-success { background: var(--green); color: #fff; }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-full { width: 100%; }
+.btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; }
+.btn-ghost { background: transparent; color: var(--blue); font-size: 13px; padding: 0; border: none; font-weight: 600; }
+
+/* ═══════════════════════════════════════════
+   CARDS
+═══════════════════════════════════════════ */
+.card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  margin-bottom: 16px;
+}
+.card-sm {
+  background: var(--white);
+  border-radius: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  margin-bottom: 9px;
+}
+
+/* ═══════════════════════════════════════════
+   BADGES
+═══════════════════════════════════════════ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+.b-grey   { background: #F3F4F6; color: #374151; }
+.b-blue   { background: var(--blue-lt); color: #1D4ED8; }
+.b-green  { background: var(--green-lt); color: #065F46; }
+.b-amber  { background: var(--amber-lt); color: #92400E; }
+.b-red    { background: var(--red-lt); color: #991B1B; }
+.b-purple { background: var(--purple-lt); color: #5B21B6; }
+
+/* ═══════════════════════════════════════════
+   BANNERS / ALERTS
+═══════════════════════════════════════════ */
+.ban {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  border: 1.5px solid;
+  line-height: 1.5;
+}
+.ban-blue  { background: #EFF6FF; border-color: #BFDBFE; color: #1E40AF; }
+.ban-green { background: #ECFDF5; border-color: #A7F3D0; color: #065F46; }
+.ban-amber { background: #FFFBEB; border-color: #FCD34D; color: #92400E; }
+.ban-red   { background: #FEF2F2; border-color: #FCA5A5; color: #991B1B; }
+
+/* ═══════════════════════════════════════════
+   PAGE TITLES
+═══════════════════════════════════════════ */
+.pt {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -.02em;
+  margin-bottom: 2px;
+}
+.ps {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 20px;
+  font-style: italic;
+}
+.ph {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+.ph-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+/* ═══════════════════════════════════════════
+   TABLES
+═══════════════════════════════════════════ */
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  background: var(--bg);
+  padding: 9px 12px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted);
+  border-bottom: 1.5px solid var(--border);
+}
+td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+  color: var(--ink);
+}
+tr:last-child td { border-bottom: none; }
+tr.alt { background: #FAFAFA; }
+.mono { font-family: var(--font-mono); font-size: 12px; }
+
+/* ═══════════════════════════════════════════
+   KPI TILES
+═══════════════════════════════════════════ */
+.kpis { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
+.kpi {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--blue);
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+}
+.kpi.ok    { border-top-color: var(--green); }
+.kpi.warn  { border-top-color: var(--amber); }
+.kpi.alert { border-top-color: var(--red); }
+.kv {
+  font-size: 30px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--ink);
+  letter-spacing: -.02em;
+  line-height: 1;
+}
+.kl { font-size: 11px; color: var(--muted); margin-top: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+
+/* ═══════════════════════════════════════════
+   HERO BANNER (pickup)
+═══════════════════════════════════════════ */
+.hero {
+  background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 60%, #0EA5E9 100%);
+  border-radius: 14px;
+  padding: 20px 24px;
+  color: #fff;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 20px rgba(37,99,235,.35);
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 140px; height: 140px;
+  background: rgba(255,255,255,.06);
+  border-radius: 50%;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -50px; left: 30%;
+  width: 200px; height: 200px;
+  background: rgba(255,255,255,.04);
+  border-radius: 50%;
+}
+.hero-label { font-size: 10px; opacity: .6; text-transform: uppercase; letter-spacing: .1em; font-family: var(--font-mono); }
+.hero-val   { font-size: 20px; font-weight: 800; margin-top: 4px; letter-spacing: -.01em; }
+.hero-sub   { font-size: 13px; opacity: .75; margin-top: 3px; }
+
+/* ═══════════════════════════════════════════
+   COUNTER BADGES
+═══════════════════════════════════════════ */
+.cbadges { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+.cbadge {
+  background: var(--white);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+  border: 1px solid var(--line);
+}
+.cbadge .cn { font-size: 26px; font-weight: 800; font-family: var(--font-mono); }
+.cbadge .cl { font-size: 11px; color: var(--muted); margin-top: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+
+/* QUICK ACTIONS GRID */
+.qgrid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 18px; }
+.qbtn {
+  background: var(--white);
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 12px;
+  text-align: center;
+  cursor: default;
+  transition: all .15s;
+}
+.qbtn:hover { border-color: var(--blue); background: var(--blue-lt); }
+.qbtn .qi { font-size: 22px; margin-bottom: 7px; }
+.qbtn .ql { font-size: 12px; font-weight: 700; color: var(--ink2); }
+
+/* NOTIFICATION STRIP */
+.nstrip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--blue-lt);
+  border: 1px solid #BFDBFE;
+  border-radius: 8px;
+  padding: 9px 14px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #1E40AF;
+}
+
+/* ═══════════════════════════════════════════
+   JOB CARDS
+═══════════════════════════════════════════ */
+.jcard {
+  background: var(--white);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 9px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--blue);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.jcard.amber { border-left-color: var(--amber); }
+.jcard.green { border-left-color: var(--green); }
+.jcard.red   { border-left-color: var(--red); }
+.jcard.purple{ border-left-color: var(--purple); }
+
+/* ═══════════════════════════════════════════
+   MAP BOX
+═══════════════════════════════════════════ */
+.mapbox {
+  background: #E0EEF8;
+  border-radius: 12px;
+  height: 380px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.mapbg {
+  width: 100%; height: 100%;
+  background: linear-gradient(135deg, #DBEAFE 0%, #E0F2FE 50%, #DCFCE7 100%);
+}
+.mgrid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(148,163,184,.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148,163,184,.15) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.mroad { position: absolute; background: rgba(255,255,255,.7); border-radius: 3px; }
+.mmarker { position: absolute; text-align: center; }
+.mdot {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+  font-size: 14px;
+}
+.mdot-green { background: var(--green); }
+.mdot-red   { background: var(--red); animation: mpulse 1.5s infinite; }
+.mdot-amber { background: var(--amber); }
+@keyframes mpulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(220,38,38,.4); }
+  50% { box-shadow: 0 0 0 8px rgba(220,38,38,0); }
+}
+.mlbl {
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(255,255,255,.92);
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  display: inline-block;
+}
+.mrefresh {
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(255,255,255,.95);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 11px;
+  color: var(--ink2);
+  font-family: var(--font-mono);
+  box-shadow: 0 1px 4px rgba(0,0,0,.1);
+  display: flex; align-items: center; gap: 6px;
+}
+.mfilter {
+  position: absolute; top: 10px; left: 10px;
+  background: rgba(255,255,255,.95);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.1);
+}
+.mfilter label { text-transform: none; letter-spacing: 0; font-weight: 500; display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+
+/* ROUTE CARD */
+.rcard {
+  background: var(--white);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid var(--line);
+}
+.rhead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.rstop { display: flex; align-items: center; gap: 9px; padding: 5px 0; font-size: 13px; }
+.step-num {
+  width: 22px; height: 22px;
+  background: var(--blue);
+  color: #fff;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.savings-bar {
+  background: linear-gradient(90deg, #065F46, #059669);
+  color: #fff;
+  border-radius: 10px;
+  padding: 13px 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* CALENDAR */
+.calgrid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+.calh { font-size: 10px; font-weight: 700; text-align: center; color: var(--muted); padding: 4px; text-transform: uppercase; letter-spacing: .05em; }
+.cald { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: default; }
+.cald.hol { background: var(--amber-lt); color: #92400E; font-weight: 700; }
+.cald.tod { background: var(--blue); color: #fff; font-weight: 800; }
+.cald.dim { color: var(--faint); }
+
+/* TOGGLE */
+.trow { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--line); gap: 16px; }
+.trow:last-child { border-bottom: none; }
+.tlabel { font-size: 14px; font-weight: 600; color: var(--ink); }
+.tdesc  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.tog {
+  width: 46px; height: 25px;
+  background: var(--green);
+  border-radius: 13px;
+  position: relative;
+  flex-shrink: 0;
+  cursor: default;
+}
+.tog.off { background: var(--border); }
+.tog::after {
+  content: '';
+  position: absolute;
+  width: 19px; height: 19px;
+  background: #fff;
+  border-radius: 50%;
+  top: 3px; left: 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.2);
+  transition: left .15s;
+}
+.tog.off::after { left: 3px; }
+
+/* FILTER BAR */
+.fbar { display: flex; gap: 9px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.fbar select { width: auto; min-width: 150px; }
+.fbar input  { width: auto; min-width: 200px; }
+
+/* STRENGTH BAR */
+.sbar { height: 4px; border-radius: 2px; background: var(--line); margin-top: 6px; }
+.sfill { height: 100%; width: 55%; background: var(--amber); border-radius: 2px; }
+
+/* TERM / MONOSPACE BLOCK */
+.term {
+  background: #18181B;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: rgba(255,255,255,.5);
+  margin-bottom: 16px;
+}
+.term .p { color: #3FB950; }
+.term .c { color: #58A6FF; }
+
+/* CONFIRMATION */
+.confcard {
+  background: #ECFDF5;
+  border: 1.5px solid #6EE7B7;
+  border-radius: 12px;
+  padding: 18px 20px;
+  text-align: center;
+}
+.confref {
+  font-size: 18px;
+  font-weight: 800;
+  color: #065F46;
+  margin: 6px 0;
+  font-family: var(--font-mono);
+  letter-spacing: .04em;
+}
+.confmsg { font-size: 12px; color: #059669; }
+
+/* ALERT PANEL */
+.apanel {
+  background: var(--red-lt);
+  border: 1.5px solid #FCA5A5;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+.apanel-title { font-weight: 700; color: #991B1B; margin-bottom: 10px; font-size: 14px; }
+.aitem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 1px solid #FEE2E2;
+  gap: 12px;
+}
+.aitem:last-child { border-bottom: none; }
+
+/* DIVIDER */
+.divider { border: none; border-top: 1px solid var(--line); margin: 18px 0; }
+
+/* LINK */
+.lnk { color: var(--blue); font-size: 13px; text-decoration: none; cursor: default; font-weight: 600; }
+
+/* REPORT TABLE EXTRAS */
+tr.rgh td { background: #1E3A5F; color: #fff; font-family: var(--font-mono); font-size: 12px; font-weight: 700; }
+tr.rst td { background: #EFF6FF; font-weight: 700; color: #1E40AF; }
+tr.rtot td { background: #1E3A5F; color: #fff; font-weight: 800; }
+
+/* UPLOAD BOX */
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  text-align: center;
+  background: var(--bg);
+  cursor: default;
+}
+.upload-zone:hover { border-color: var(--blue); background: var(--blue-lt); }
+.upload-icon { font-size: 24px; margin-bottom: 6px; }
+.upload-label { font-size: 13px; color: var(--muted); }
+.upload-hint  { font-size: 11px; color: var(--faint); margin-top: 3px; }
+
+/* WATERMARK */
+.bviewport::after {
+  content: 'PROTOTYPE';
+  position: fixed;
+  bottom: 40px; right: 40px;
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  color: rgba(37,99,235,.06);
+  font-family: var(--font-mono);
+  transform: rotate(-25deg);
+  pointer-events: none;
+  z-index: 0;
+}
+</style>
+</head>
+<body>
+<div class="outer">
+
+<!-- ── CONTROL BAR ── -->
+<div class="ctrl">
+  <div class="ctrl-brand">
+    <div class="ctrl-logo-mark">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="13" width="5" height="9" rx="1" fill="#fff" opacity=".6"/><rect x="9.5" y="8" width="5" height="14" rx="1" fill="#fff" opacity=".8"/><rect x="17" y="3" width="5" height="19" rx="1" fill="#fff"/></svg>
+    </div>
+    <div class="ctrl-wordmark">
+      ARMS
+      <span>ABC Recycling Management System</span>
+    </div>
+  </div>
+
+  <div class="ctrl-groups">
+    <button class="grp-btn c on" onclick="showGroup('c')"><span class="dot"></span>Citizen</button>
+    <button class="grp-btn d" onclick="showGroup('d')"><span class="dot"></span>Dispatcher</button>
+    <button class="grp-btn t" onclick="showGroup('t')"><span class="dot"></span>Technician</button>
+    <button class="grp-btn m" onclick="showGroup('m')"><span class="dot"></span>Manager</button>
+  </div>
+
+  <div class="ctrl-meta">
+    <span class="proto-chip">Prototype</span>
+    <span>21 screens</span>
+  </div>
+</div>
+
+<!-- ── BROWSER FRAME ── -->
+<div class="browser">
+
+  <!-- Chrome bar -->
+  <div class="bchrome">
+    <div class="bchrome-dots">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="bchrome-nav">
+      <button>‹</button>
+      <button>›</button>
+    </div>
+    <div class="burl-wrap">
+      <span class="burl-lock">🔒</span>
+      <span class="burl-text" id="bc-url">arm-system.ca/citizen/dashboard</span>
+    </div>
+    <div class="bchrome-label" id="bc-label">Screen 03</div>
+  </div>
+
+  <!-- Screen tabs -->
+  <div class="stabs-bar" id="stabs"></div>
+
+  <!-- Viewport -->
+  <div class="bviewport" id="bviewport">
+
+<!-- ╔══════════════════════════════════════╗
+     ║  S1 — CITIZEN REGISTRATION           ║
+     ╚══════════════════════════════════════╝ -->
+<div class="screen on" id="s1">
+<div class="auth-bg">
+<div class="auth-box">
+  <div class="sbadge" style="justify-content:center;margin-bottom:14px;"><span class="sn">01</span><span class="st">Resident Registration — US-01</span></div>
+  <div class="auth-logomark">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="#fff" opacity=".9"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/></svg>
+  </div>
+  <div class="auth-title">Create Your ARM Account</div>
+  <div class="auth-sub">ABC Recycling Management System</div>
+  <div class="fg"><label>Full Name <span class="req">*</span></label><input type="text" placeholder="Enter your full name"></div>
+  <div class="fg"><label>Civic Address <span class="req">*</span></label><input type="text" placeholder="Street number and name"></div>
+  <div class="fg-row">
+    <div><label>City <span class="req">*</span></label><select><option>Select city…</option><option>Toronto</option><option>Mississauga</option></select></div>
+    <div><label>Postal Code <span class="req">*</span></label><input type="text" placeholder="A1A 1A1"><div class="hint">Format: A1A 1A1</div></div>
+  </div>
+  <div class="fg"><label>Email Address <span class="req">*</span></label><input type="email" placeholder="your@email.com"></div>
+  <div class="fg"><label>Password <span class="req">*</span></label><input type="password" placeholder="Minimum 8 characters"><div class="sbar"><div class="sfill"></div></div><div class="hint">Password strength: Fair</div></div>
+  <div class="fg"><label>Confirm Password <span class="req">*</span></label><input type="password" placeholder="Re-enter your password"></div>
+  <div class="cbrow"><input type="checkbox"><label>I agree to the collection and use of my personal information as described in the Privacy Policy (PIPEDA) <span class="req">*</span></label></div>
+  <div style="margin-top:16px;"><button class="btn btn-primary btn-full">Create My Account</button></div>
+  <div style="text-align:center;margin-top:14px;font-size:13px;color:var(--muted);">Already have an account? <a class="lnk">Sign In</a></div>
+</div>
+</div>
+</div>
+
+<!-- ╔══════════════════════════════════════╗
+     ║  S2 — CITIZEN LOGIN                  ║
+     ╚══════════════════════════════════════╝ -->
+<div class="screen" id="s2">
+<div class="auth-bg">
+<div class="auth-box">
+  <div class="sbadge" style="justify-content:center;margin-bottom:14px;"><span class="sn">02</span><span class="st">Resident Login — US-01</span></div>
+  <div class="auth-logomark">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="#fff" opacity=".9"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/></svg>
+  </div>
+  <div class="auth-title">Sign In to ARMS</div>
+  <div class="auth-sub">ABC Recycling Management System</div>
+  <div class="term"><span class="p">arm@portal:~$</span> <span class="c">auth --login --portal citizen</span></div>
+  <div class="fg"><label>Email Address</label><input type="email" placeholder="your@email.com"></div>
+  <div class="fg"><label>Password</label><input type="password" placeholder="Enter your password"><div style="margin-top:6px;"><a class="lnk">Forgot your password?</a></div></div>
+  <button class="btn btn-primary btn-full">Sign In</button>
+  <div style="text-align:center;margin-top:14px;font-size:13px;color:var(--muted);">New user? <a class="lnk">Create an Account</a></div>
+</div>
+</div>
+</div>
+
+<!-- ╔══════════════════════════════════════╗
+     ║  S3 — CITIZEN DASHBOARD              ║
+     ╚══════════════════════════════════════╝ -->
+<div class="screen" id="s3">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-user">
+      <div class="sb-avatar">JR</div>
+      <div class="sb-role">Citizen Portal</div>
+      <div class="sb-name">Jane Resident</div>
+    </div>
+    <div class="sb-nav">
+      <a class="sb-link on"><span class="icon">🏠</span>Dashboard</a>
+      <a class="sb-link"><span class="icon">📋</span>My Requests</a>
+      <a class="sb-link"><span class="icon">🔔</span>Notifications</a>
+      <a class="sb-link"><span class="icon">⚙️</span>Account Settings</a>
+      <div class="sb-sep"></div>
+      <a class="sb-link sb-out"><span class="icon">🚪</span>Sign Out</a>
+    </div>
+    <div class="sb-footer">ARMS v2.0 · Citizen</div>
+  </nav>
+  <main class="main">
+    <div class="sbadge"><span class="sn">03</span><span class="st">Resident Dashboard — US-01, US-02, US-04</span></div>
+    <div class="hero">
+      <div style="position:relative;z-index:1;">
+        <div class="hero-label">Next Scheduled Pickup</div>
+        <div class="hero-val">Wednesday, April 8</div>
+        <div class="hero-sub">♻️ Recycling (Blue Box)</div>
+      </div>
+      <div style="text-align:right;position:relative;z-index:1;">
+        <svg width="110" height="60" viewBox="0 0 110 64" fill="none">
+          <rect x="8" y="26" width="82" height="26" rx="8" fill="rgba(255,255,255,.18)"/>
+          <rect x="18" y="14" width="58" height="22" rx="7" fill="rgba(255,255,255,.25)"/>
+          <rect x="22" y="16" width="22" height="16" rx="4" fill="rgba(255,255,255,.5)"/>
+          <rect x="50" y="16" width="20" height="16" rx="4" fill="rgba(255,255,255,.5)"/>
+          <circle cx="24" cy="52" r="9" fill="rgba(255,255,255,.85)"/><circle cx="24" cy="52" r="5" fill="#1D4ED8"/>
+          <circle cx="82" cy="52" r="9" fill="rgba(255,255,255,.85)"/><circle cx="82" cy="52" r="5" fill="#1D4ED8"/>
+        </svg>
+        <div style="font-size:11px;opacity:.6;font-family:var(--font-mono);">ETA: 2 days</div>
+      </div>
+    </div>
+    <div class="nstrip"><span>📧 Email: <strong>ON</strong> &nbsp;·&nbsp; 📱 SMS: <strong>ON</strong></span><a class="lnk" style="color:#1D4ED8;">Edit Preferences →</a></div>
+    <div class="cbadges">
+      <div class="cbadge"><div class="cn" style="color:var(--red);">2</div><div class="cl">Open Complaints</div></div>
+      <div class="cbadge"><div class="cn" style="color:var(--amber);">1</div><div class="cl">Pending Maintenance</div></div>
+      <div class="cbadge"><div class="cn" style="color:var(--blue);">0</div><div class="cl">Pending Replacements</div></div>
+    </div>
+    <div class="qgrid">
+      <div class="qbtn"><div class="qi">🚫</div><div class="ql">Report Missed Pickup</div></div>
+      <div class="qbtn"><div class="qi">🔧</div><div class="ql">Request Maintenance</div></div>
+      <div class="qbtn"><div class="qi">🗑️</div><div class="ql">Request Replacement</div></div>
+    </div>
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px;">Upcoming Pickups</div>
+      <table><thead><tr><th>Date</th><th>Day</th><th>Waste Type</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Apr 8, 2026</td><td>Wednesday</td><td>♻️ Recycling</td><td><span class="badge b-blue">Scheduled</span></td></tr>
+        <tr><td>Apr 13, 2026</td><td>Monday</td><td>🗑️ Garbage</td><td><span class="badge b-grey">Scheduled</span></td></tr>
+        <tr><td>Apr 15, 2026</td><td>Wednesday</td><td>🌿 Organic</td><td><span class="badge b-green">Scheduled</span></td></tr>
+        <tr><td>Apr 20, 2026</td><td>Monday</td><td>♻️ Recycling</td><td><span class="badge b-grey">Scheduled</span></td></tr>
+      </tbody></table>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- S4 MISSED PICKUP -->
+<div class="screen" id="s4">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-user"><div class="sb-avatar">JR</div><div class="sb-role">Citizen Portal</div><div class="sb-name">Jane Resident</div></div>
+    <div class="sb-nav">
+      <a class="sb-link"><span class="icon">🏠</span>Dashboard</a>
+      <a class="sb-link"><span class="icon">📋</span>My Requests</a>
+      <a class="sb-link"><span class="icon">🔔</span>Notifications</a>
+      <a class="sb-link"><span class="icon">⚙️</span>Account Settings</a>
+    </div>
+  </nav>
+  <main class="main">
+    <div class="sbadge"><span class="sn">04</span><span class="st">Report Missed Pickup — US-03</span></div>
+    <div class="ph"><div><div class="pt">Report a Missed Pickup</div><div class="ps">Let us know and we'll investigate right away.</div></div></div>
+    <div class="card" style="max-width:560px;">
+      <div class="fg"><label>Your Address</label><input class="ro" value="123 Maple Street, Toronto, ON M5V 1A1" readonly><div class="hint">Not your address? Update in Account Settings.</div></div>
+      <div class="fg"><label>Missed Pickup Date <span class="req">*</span></label><input type="date" value="2026-04-05"><div class="hint">Cannot select future dates.</div></div>
+      <div class="fg"><label>Waste Type <span class="req">*</span></label><select><option>Select waste type…</option><option>🗑️ Garbage</option><option>♻️ Recycling</option><option>🌿 Organic</option></select></div>
+      <div class="fg"><label>Additional Comments</label><textarea placeholder="Any additional details about the missed pickup?"></textarea></div>
+      <div style="display:flex;gap:10px;align-items:center;"><button class="btn btn-primary">Submit Report</button><a class="lnk">← Cancel</a></div>
+      <div class="divider"></div>
+      <div class="confcard"><div style="font-size:15px;font-weight:700;color:#065F46;">✅ Report Submitted Successfully</div><div class="confref">MP-20260406-00142</div><div class="confmsg">Save this reference number to track your request.</div></div>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- S5 MY REQUESTS -->
+<div class="screen" id="s5">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-user"><div class="sb-avatar">JR</div><div class="sb-role">Citizen Portal</div><div class="sb-name">Jane Resident</div></div>
+    <div class="sb-nav">
+      <a class="sb-link"><span class="icon">🏠</span>Dashboard</a>
+      <a class="sb-link on"><span class="icon">📋</span>My Requests</a>
+      <a class="sb-link"><span class="icon">🔔</span>Notifications</a>
+      <a class="sb-link"><span class="icon">⚙️</span>Account Settings</a>
+    </div>
+  </nav>
+  <main class="main">
+    <div class="sbadge"><span class="sn">05</span><span class="st">My Requests / Complaint Status Tracker — US-04</span></div>
+    <div class="pt">My Service Requests</div>
+    <div class="fbar">
+      <select><option>All Types</option><option>Missed Pickup</option><option>Maintenance</option><option>Replacement</option></select>
+      <select><option>All Statuses</option><option>Open</option><option>In Progress</option><option>Resolved</option></select>
+    </div>
+    <div class="card-sm" style="border-left:4px solid var(--red);">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div class="mono" style="color:var(--muted);font-size:11px;">MP-20260406-00142 · Missed Pickup</div><div style="font-weight:700;margin:4px 0;">Garbage not collected on Apr 5</div><div style="font-size:11px;color:var(--muted);">Submitted: Apr 6, 2026 · Last update: 2 hours ago</div></div>
+        <span class="badge b-grey">Submitted</span>
+      </div>
+    </div>
+    <div class="card-sm" style="border-left:4px solid var(--amber);">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div class="mono" style="color:var(--muted);font-size:11px;">MR-20260401-00089 · Maintenance</div><div style="font-weight:700;margin:4px 0;">Cracked lid on Blue Box</div><div style="font-size:11px;color:var(--muted);">Submitted: Apr 1, 2026 · Last update: 1 day ago</div></div>
+        <span class="badge b-amber">In Progress</span>
+      </div>
+    </div>
+    <div class="card-sm" style="border-left:4px solid var(--green);">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div class="mono" style="color:var(--muted);font-size:11px;">MP-20260320-00055 · Missed Pickup</div><div style="font-weight:700;margin:4px 0;">Recycling missed on Mar 20</div><div style="font-size:11px;color:var(--muted);">Submitted: Mar 20, 2026 · Resolved: Mar 22, 2026</div></div>
+        <span class="badge b-green">Resolved</span>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:14px;"><button class="btn btn-secondary">Show More</button></div>
+  </main>
+</div>
+</div>
+
+<!-- S6 MAINTENANCE -->
+<div class="screen" id="s6">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-user"><div class="sb-avatar">JR</div><div class="sb-role">Citizen Portal</div><div class="sb-name">Jane Resident</div></div>
+    <div class="sb-nav">
+      <a class="sb-link"><span class="icon">🏠</span>Dashboard</a>
+      <a class="sb-link"><span class="icon">📋</span>My Requests</a>
+      <a class="sb-link"><span class="icon">🔔</span>Notifications</a>
+      <a class="sb-link"><span class="icon">⚙️</span>Account Settings</a>
+    </div>
+  </nav>
+  <main class="main">
+    <div class="sbadge"><span class="sn">06</span><span class="st">Container Maintenance Request — US-05</span></div>
+    <div class="pt">Request Container Maintenance</div><div class="ps">Report a damaged or malfunctioning container.</div>
+    <div class="card" style="max-width:560px;">
+      <div class="fg"><label>Container <span class="req">*</span></label><select><option>Select your container…</option><option>Blue Box (Recycling) — SN: RCY-2024-0042</option><option>Grey Bin (Garbage) — SN: GRB-2023-0118</option><option>Green Bin (Organic) — SN: ORG-2024-0077</option></select></div>
+      <div class="fg"><label>Issue Type <span class="req">*</span></label><select><option>Select issue type…</option><option>Cracked Lid</option><option>Broken Wheel</option><option>Damaged Body</option><option>Other</option></select></div>
+      <div class="fg"><label>Issue Description <span class="req">*</span></label><textarea placeholder="Describe the issue in detail (minimum 10 characters)…"></textarea><div class="hint">0 / 500 characters (minimum 10)</div></div>
+      <div class="fg"><label>Photo of Damage (optional)</label>
+        <div class="upload-zone"><div class="upload-icon">📷</div><div class="upload-label">Click to upload or drag &amp; drop</div><div class="upload-hint">JPG or PNG, max 5MB</div></div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;"><button class="btn btn-primary">Submit Maintenance Request</button><a class="lnk">← Cancel</a></div>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- S7 REPLACEMENT -->
+<div class="screen" id="s7">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-user"><div class="sb-avatar">JR</div><div class="sb-role">Citizen Portal</div><div class="sb-name">Jane Resident</div></div>
+    <div class="sb-nav">
+      <a class="sb-link"><span class="icon">🏠</span>Dashboard</a>
+      <a class="sb-link"><span class="icon">📋</span>My Requests</a>
+      <a class="sb-link"><span class="icon">🔔</span>Notifications</a>
+      <a class="sb-link"><span class="icon">⚙️</span>Account Settings</a>
+    </div>
+  </nav>
+  <main class="main">
+    <div class="sbadge"><span class="sn">07</span><span class="st">Replacement Container Request — US-06</span></div>
+    <div class="pt">Request a Replacement Container</div><div class="ps">Order a new container to replace a lost or severely damaged one.</div>
+    <div class="card" style="max-width:560px;">
+      <div class="ban ban-amber">⚠️ A flat service fee of <strong>$40.00</strong> applies to all replacement requests. This fee will be collected upon delivery.</div>
+      <div class="fg"><label>Container Type <span class="req">*</span></label><select><option>Select container type…</option><option>🌿 Green Bin (Organic)</option><option>♻️ Blue Box (Recycling)</option><option>🗑️ Grey Bin (Garbage)</option></select></div>
+      <div class="fg"><label>Container Size <span class="req">*</span></label><select><option>Select size…</option><option>Small</option><option>Medium</option><option>Large</option></select></div>
+      <div class="cbrow"><input type="checkbox"><label>I understand and agree to the <strong>$40.00</strong> replacement fee <span class="req">*</span></label></div>
+      <div style="display:flex;gap:10px;margin-top:14px;align-items:center;"><button class="btn btn-primary">Confirm Replacement Request</button><a class="lnk">← Cancel</a></div>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- S8 NOTIFICATIONS -->
+<div class="screen" id="s8">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-user"><div class="sb-avatar">JR</div><div class="sb-role">Citizen Portal</div><div class="sb-name">Jane Resident</div></div>
+    <div class="sb-nav">
+      <a class="sb-link"><span class="icon">🏠</span>Dashboard</a>
+      <a class="sb-link"><span class="icon">📋</span>My Requests</a>
+      <a class="sb-link on"><span class="icon">🔔</span>Notifications</a>
+      <a class="sb-link"><span class="icon">⚙️</span>Account Settings</a>
+    </div>
+  </nav>
+  <main class="main">
+    <div class="sbadge"><span class="sn">08</span><span class="st">Notification Preferences — US-16</span></div>
+    <div class="pt">Notification Preferences</div><div class="ps">Manage how ARMS contacts you about pickups and updates.</div>
+    <div class="card" style="max-width:500px;">
+      <div class="trow"><div><div class="tlabel">📧 Email Notifications</div><div class="tdesc">Pickup reminders, complaint updates, and service confirmations via email.</div></div><div class="tog"></div></div>
+      <div class="trow"><div><div class="tlabel">📱 SMS Notifications</div><div class="tdesc">Pickup reminders, complaint updates, and service confirmations via SMS.</div></div><div class="tog off"></div></div>
+      <div style="display:flex;gap:10px;margin-top:18px;align-items:center;"><button class="btn btn-primary">Save Preferences</button><a class="lnk">Cancel</a></div>
+      <div class="ban ban-green" style="margin-top:14px;">✅ Your notification preferences have been updated successfully.</div>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- S9 DISPATCHER DASHBOARD -->
+<div class="screen" id="s9">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-user"><div class="sb-avatar">AD</div><div class="sb-role">Dispatcher</div><div class="sb-name">Alex Dispatcher</div></div>
+    <div class="sb-nav">
+      <a class="sb-link on"><span class="icon">🖥️</span>Dashboard</a>
+      <a class="sb-link"><span class="icon">📅</span>Schedule Builder</a>
+      <a class="sb-link"><span class="icon">🚛</span>Truck Assignments</a>
+      <a class="sb-link"><span class="icon">🗺️</span>Fleet Map</a>
+      <a class="sb-link"><span class="icon">📋</span>Complaints</a>
+      <a class="sb-link"><span class="icon">🔀</span>Route Optimization</a>
+      <div class="sb-sep"></div>
+      <a class="sb-link sb-out"><span class="icon">🚪</span>Sign Out</a>
+    </div>
+    <div class="sb-footer">ARMS v2.0 · Dispatch</div>
+  </nav>
+  <main class="main">
+    <div class="sbadge"><span class="sn">09</span><span class="st">Dispatcher Dashboard — US-07, US-08, US-09, US-17</span></div>
+    <div class="term"><span class="p">arm@dispatch:~$</span> <span class="c">status --fleet --alerts --date 2026-04-06</span></div>
+    <div class="kpis">
+      <div class="kpi ok"><div class="kv">12</div><div class="kl">Active Trucks Today</div></div>
+      <div class="kpi warn"><div class="kv">7</div><div class="kl">Open Complaints</div></div>
+      <div class="kpi"><div class="kv">3</div><div class="kl">Unassigned Routes</div></div>
+      <div class="kpi alert"><div class="kv" style="color:var(--red);">2</div><div class="kl">🔴 GPS Alerts</div></div>
+    </div>
+    <div class="apanel">
+      <div class="apanel-title">🚨 GPS Signal Loss Alerts</div>
+      <div class="aitem"><div><div style="font-weight:700;">Truck T-07 — Mike Chen</div><div style="font-size:12px;font-family:var(--font-mono);margin-top:2px;">King St W &amp; Spadina Ave · 23 min since last signal</div></div><button class="btn btn-secondary btn-sm">Acknowledge</button></div>
+      <div class="aitem"><div><div style="font-weight:700;">Truck T-12 — Sara Patel</div><div style="font-size:12px;font-family:var(--font-mono);margin-top:2px;">Bloor St &amp; Dufferin St · 8 min since last signal</div></div><button class="btn btn-secondary btn-sm">Acknowledge</button></div>
+    </div>
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px;">Complaint Queue</div>
+      <table><thead><tr><th>Ref No.</th><th>Resident</th><th>Type</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">MP-00142</td><td>Jane Resident</td><td>Missed Pickup</td><td>Apr 6</td><td><span class="badge b-grey">Submitted</span></td><td><button class="btn btn-primary btn-sm">Assign</button></td></tr>
+        <tr><td class="mono">MR-00138</td><td>Bob Smith</td><td>Maintenance</td><td>Apr 5</td><td><span class="badge b-blue">Assigned</span></td><td><button class="btn btn-secondary btn-sm">Update</button></td></tr>
+        <tr><td class="mono">MP-00131</td><td>Carol White</td><td>Missed Pickup</td><td>Apr 4</td><td><span class="badge b-amber">In Progress</span></td><td><button class="btn btn-success btn-sm">Resolve</button></td></tr>
+      </tbody></table>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- S10 SCHEDULE BUILDER -->
+<div class="screen" id="s10">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-user"><div class="sb-avatar">AD</div><div class="sb-role">Dispatcher</div><div class="sb-name">Alex Dispatcher</div></div>
+    <div class="sb-nav">
+      <a class="sb-link"><span class="icon">🖥️</span>Dashboard</a>
+      <a class="sb-link on"><span class="icon">📅</span>Schedule Builder</a>
+      <a class="sb-link"><span class="icon">🚛</span>Truck Assignments</a>
+      <a class="sb-link"><span class="icon">🗺️</span>Fleet Map</a>
+      <a class="sb-link"><span class="icon">📋</span>Complaints</a>
+      <a class="sb-link"><span class="icon">🔀</span>Route Optimization</a>
+    </div>
+  </nav>
+  <main class="main">
+    <div class="sbadge"><span class="sn">10</span><span class="st">Schedule Builder — US-07</span></div>
+    <div class="pt">Pickup Schedule Builder</div><div class="ps">Create and publish collection schedules by neighbourhood.</div>
+    <div class="card" style="max-width:600px;">
+      <div class="fg"><label>Neighbourhood Name <span class="req">*</span></label><input type="text" placeholder="Enter neighbourhood name"></div>
+      <div class="fg"><label>Waste Category <span class="req">*</span></label>
+        <div style="display:flex;gap:18px;margin-top:7px;">
+          <label style="display:flex;align-items:center;gap:5px;text-transform:none;letter-spacing:0;font-weight:500;"><input type="radio" name="wc"> 🗑️ Garbage</label>
+          <label style="display:flex;align-items:center;gap:5px;text-transform:none;letter-spacing:0;font-weight:500;"><input type="radio" name="wc"> ♻️ Recycling</label>
+          <label style="display:flex;align-items:center;gap:5px;text-transform:none;letter-spacing:0;font-weight:500;"><input type="radio" name="wc" checked> 🌿 Organic</label>
+        </div>
+      </div>
+      <div class="fg"><label>Collection Weekday(s) <span class="req">*</span></label>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:7px;">
+          <label style="display:flex;align-items:center;gap:5px;text-transform:none;letter-spacing:0;font-weight:500;"><input type="checkbox"> Mon</label>
+          <label style="display:flex;align-items:center;gap:5px;text-transform:none;letter-spacing:0;font-weight:500;"><input type="checkbox" checked> Tue</label>
+          <label style="display:flex;align-items:center;gap:5px;text-transform:none;letter-spacing:0;font-weight:500;"><input type="checkbox"> Wed</label>
+          <label style="display:flex;align-items:center;gap:5px;text-transform:none;letter-spacing:0;font-weight:500;"><input type="checkbox"> Thu</label>
+          <label style="display:flex;align-items:center;gap:5px;text-transform:none;letter-spacing:0;font-weight:500;"><input type="checkbox"> Fri</label>
+        </div>
+      </div>
+      <div class="fg"><label>Recurrence Preview</label><input class="ro" value="Weekly (Organic)" readonly></div>
+      <div style="display:flex;gap:9px;"><button class="btn btn-secondary">Save as Draft</button><button class="btn btn-primary">Publish Schedule</button></div>
+    </div>
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px;">Published Schedules</div>
+      <table><thead><tr><th>Neighbourhood</th><th>Waste Type</th><th>Weekday</th><th>Recurrence</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td>Annex</td><td>♻️ Recycling</td><td>Wednesday</td><td>Bi-weekly</td><td><span class="badge b-green">Published</span></td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+        <tr><td>Rosedale</td><td>🌿 Organic</td><td>Tuesday</td><td>Weekly</td><td><span class="badge b-green">Published</span></td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+        <tr><td>Parkdale</td><td>🗑️ Garbage</td><td>Monday</td><td>Bi-weekly</td><td><span class="badge b-grey">Draft</span></td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+      </tbody></table>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- S11 TRUCK ASSIGNMENT -->
+<div class="screen" id="s11">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-user"><div class="sb-avatar">AD</div><div class="sb-role">Dispatcher</div><div class="sb-name">Alex Dispatcher</div></div>
+    <div class="sb-nav">
+      <a class="sb-link"><span class="icon">🖥️</span>Dashboard</a>
+      <a class="sb-link"><span class="icon">📅</span>Schedule Builder</a>
+      <a class="sb-link on"><span class="icon">🚛</span>Truck Assignments</a>
+      <a class="sb-link"><span class="icon">🗺️</span>Fleet Map</a>
+      <a class="sb-link"><span class="icon">📋</span>Complaints</a>
+      <a class="sb-link"><span class="icon">🔀</span>Route Optimization</a>
+    </div>
+  </nav>
+  <main class="main">
+    <div class="sbadge"><span class="sn">11</span><span class="st">Truck Assignment — US-08</span></div>
+    <div class="ph"><div><div class="pt">Assign Trucks to Routes</div><div class="ps">Assign available trucks and drivers to today's pickup routes.</div></div><div class="ph-actions"><button class="btn btn-primary">Save All Assignments</button></div></div>
+    <div class="card">
+      <table><thead><tr><th>Route ID</th><th>Neighbourhood</th><th>Waste Type</th><th>Assign Truck</th><th>Assign Driver</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">RT-041</td><td>The Annex</td><td>♻️ Recycling</td><td><select style="width:130px;"><option>T-01 — ABC 1234</option></select></td><td><select style="width:130px;"><option>Tom Brown</option></select></td><td><span class="badge b-green">Assigned</span></td></tr>
+        <tr><td class="mono">RT-042</td><td>Rosedale</td><td>🌿 Organic</td><td><select style="width:130px;"><option>— Unassigned —</option><option>T-04 — DEF 5678</option></select></td><td><select style="width:130px;"><option>— Unassigned —</option><option>Lisa Chen</option></select></td><td><span class="badge b-grey">Unassigned</span></td></tr>
+        <tr><td class="mono">RT-043</td><td>Parkdale</td><td>🗑️ Garbage</td><td><select style="width:130px;"><option>— Unassigned —</option><option>T-07 — GHI 9012</option></select></td><td><select style="width:130px;"><option>— Unassigned —</option><option>Mike Chen</option></select></td><td><span class="badge b-grey">Unassigned</span></td></tr>
+        <tr><td class="mono">RT-044</td><td>Corktown</td><td>♻️ Recycling</td><td><select style="width:130px;"><option>T-09 — JKL 3456</option></select></td><td><select style="width:130px;"><option>Sara Patel</option></select></td><td><span class="badge b-blue">In Progress</span></td></tr>
+      </tbody></table>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- S12 GPS FLEET MAP -->
+<div class="screen" id="s12">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-user"><div class="sb-avatar">AD</div><div class="sb-role">Dispatcher</div><div class="sb-name">Alex Dispatcher</div></div>
+    <div class="sb-nav">
+      <a class="sb-link"><span class="icon">🖥️</span>Dashboard</a>
+      <a class="sb-link"><span class="icon">📅</span>Schedule Builder</a>
+      <a class="sb-link"><span class="icon">🚛</span>Truck Assignments</a>
+      <a class="sb-link on"><span class="icon">🗺️</span>Fleet Map</a>
+      <a class="sb-link"><span class="icon">📋</span>Complaints</a>
+      <a class="sb-link"><span class="icon">🔀</span>Route Optimization</a>
+    </div>
+  </nav>
+  <main class="main">
+    <div class="sbadge"><span class="sn">12</span><span class="st">GPS Fleet Tracking Map — US-09</span></div>
+    <div class="pt">Live Fleet Map</div><div class="ps">Real-time GPS positions of all active trucks.</div>
+    <div class="mapbox">
+      <div class="mapbg">
+        <div class="mgrid"></div>
+        <div class="mroad" style="top:45%;left:0;right:0;height:6px;"></div>
+        <div class="mroad" style="top:25%;left:0;right:0;height:4px;"></div>
+        <div class="mroad" style="top:70%;left:0;right:0;height:4px;"></div>
+        <div class="mroad" style="left:20%;top:0;bottom:0;width:5px;"></div>
+        <div class="mroad" style="left:50%;top:0;bottom:0;width:5px;"></div>
+        <div class="mroad" style="left:75%;top:0;bottom:0;width:5px;"></div>
+        <div class="mmarker" style="top:38%;left:18%;"><div class="mdot mdot-green">🚛</div><div class="mlbl">T-01</div></div>
+        <div class="mmarker" style="top:22%;left:48%;"><div class="mdot mdot-green">🚛</div><div class="mlbl">T-04</div></div>
+        <div class="mmarker" style="top:55%;left:30%;"><div class="mdot mdot-red">🚛</div><div class="mlbl">T-07 ⚠</div></div>
+        <div class="mmarker" style="top:35%;left:70%;"><div class="mdot mdot-green">🚛</div><div class="mlbl">T-09</div></div>
+        <div class="mmarker" style="top:65%;left:73%;"><div class="mdot mdot-amber">🚛</div><div class="mlbl">T-12</div></div>
+      </div>
+      <div class="mrefresh">🔄 Updated 14:42:07</div>
+      <div class="mfilter">
+        <div style="font-weight:700;font-size:12px;margin-bottom:8px;">Filter Fleet</div>
+        <label><input type="checkbox" checked> 🟢 Active (10)</label>
+        <label><input type="checkbox" checked> 🔴 GPS Alert (2)</label>
+        <label><input type="checkbox"> ⚫ Offline (2)</label>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table><thead><tr><th>Truck</th><th>Driver</th><th>Status</th><th>Location</th><th>Last Update</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">T-01</td><td>Tom Brown</td><td><span class="badge b-green">Active</span></td><td>King St W &amp; Bathurst</td><td>14:42:07</td></tr>
+        <tr><td class="mono">T-07</td><td>Mike Chen</td><td><span class="badge b-red">GPS Alert</span></td><td>King St W &amp; Spadina</td><td>14:19:02</td></tr>
+        <tr><td class="mono">T-12</td><td>Sara Patel</td><td><span class="badge b-amber">Delayed</span></td><td>Bloor St &amp; Dufferin</td><td>14:34:51</td></tr>
+      </tbody></table>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- S13 COMPLAINTS -->
+<div class="screen" id="s13">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-user"><div class="sb-avatar">AD</div><div class="sb-role">Dispatcher</div><div class="sb-name">Alex Dispatcher</div></div>
+    <div class="sb-nav">
+      <a class="sb-link"><span class="icon">🖥️</span>Dashboard</a>
+      <a class="sb-link"><span class="icon">📅</span>Schedule Builder</a>
+      <a class="sb-link"><span class="icon">🚛</span>Truck Assignments</a>
+      <a class="sb-link"><span class="icon">🗺️</span>Fleet Map</a>
+      <a class="sb-link on"><span class="icon">📋</span>Complaints</a>
+      <a class="sb-link"><span class="icon">🔀</span>Route Optimization</a>
+    </div>
+  </nav>
+  <main class="main">
+    <div class="sbadge"><span class="sn">13</span><span class="st">Complaints Management — US-17</span></div>
+    <div class="pt">Complaint Queue</div>
+    <div class="fbar">
+      <select><option>All Types</option><option>Missed Pickup</option><option>Maintenance</option><option>Replacement</option></select>
+      <select><option>All Statuses</option><option>Submitted</option><option>Assigned</option><option>In Progress</option><option>Resolved</option></select>
+      <input type="date" value="2026-04-06">
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table><thead><tr><th>Ref No.</th><th>Resident</th><th>Type</th><th>Date</th><th>Assigned To</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">MP-00142</td><td>Jane Resident</td><td>Missed Pickup</td><td>Apr 6</td><td style="color:var(--muted);">—</td><td><span class="badge b-grey">Submitted</span></td><td><button class="btn btn-primary btn-sm">Assign</button></td></tr>
+        <tr class="alt"><td class="mono">MR-00138</td><td>Bob Smith</td><td>Maintenance</td><td>Apr 5</td><td>Sam Tech</td><td><span class="badge b-blue">Assigned</span></td><td><button class="btn btn-secondary btn-sm">View</button></td></tr>
+        <tr><td class="mono">MP-00131</td><td>Carol White</td><td>Missed Pickup</td><td>Apr 4</td><td>Sam Tech</td><td><span class="badge b-amber">In Progress</span></td><td><button class="btn btn-success btn-sm">Resolve</button></td></tr>
+        <tr class="alt"><td class="mono">MP-00118</td><td>Dan Miller</td><td>Missed Pickup</td><td>Apr 1</td><td>Sam Tech</td><td><span class="badge b-green">Resolved</span></td><td><button class="btn btn-secondary btn-sm">View</button></td></tr>
+      </tbody></table>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- S14 ROUTE OPTIMIZATION -->
+<div class="screen" id="s14">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-user"><div class="sb-avatar">AD</div><div class="sb-role">Dispatcher</div><div class="sb-name">Alex Dispatcher</div></div>
+    <div class="sb-nav">
+      <a class="sb-link"><span class="icon">🖥️</span>Dashboard</a>
+      <a class="sb-link"><span class="icon">📅</span>Schedule Builder</a>
+      <a class="sb-link"><span class="icon">🚛</span>Truck Assignments</a>
+      <a class="sb-link"><span class="icon">🗺️</span>Fleet Map</a>
+      <a class="sb-link"><span class="icon">📋</span>Complaints</a>
+      <a class="sb-link on"><span class="icon">🔀</span>Route Optimization</a>
+    </div>
+  </nav>
+  <main class="main">
+    <div class="sbadge"><span class="sn">14</span><span class="st">Route Optimization — US-10</span></div>
+    <div class="ph"><div><div class="pt">Route Optimization</div><div class="ps">AI-suggested optimal routes for today's fleet.</div></div><div class="ph-actions"><button class="btn btn-primary">Apply All Routes</button><button class="btn btn-secondary">Re-optimize</button></div></div>
+    <div class="savings-bar">💚 Estimated Savings: 34 km · 47 mins · $128 fuel cost reduction vs. yesterday's routes</div>
+    <div class="rcard">
+      <div class="rhead"><div style="font-weight:700;">🚛 Truck T-01 — Tom Brown · ♻️ Recycling</div><span class="badge b-green">Optimized</span></div>
+      <div class="rstop"><div class="step-num">1</div>Depot → 45 Oak Ave (0.8 km)</div>
+      <div class="rstop"><div class="step-num">2</div>45 Oak Ave → 78 Elm Rd (1.2 km)</div>
+      <div class="rstop"><div class="step-num">3</div>78 Elm Rd → 123 Pine Cres (0.9 km)</div>
+      <div style="font-size:11px;color:var(--muted);font-family:var(--font-mono);margin-top:8px;">Total: 14.2 km · Est. 2h 20min</div>
+    </div>
+    <div class="rcard">
+      <div class="rhead"><div style="font-weight:700;">🚛 Truck T-04 — Lisa Chen · 🌿 Organic</div><span class="badge b-green">Optimized</span></div>
+      <div class="rstop"><div class="step-num">1</div>Depot → 99 Cedar Cres (1.1 km)</div>
+      <div class="rstop"><div class="step-num">2</div>99 Cedar Cres → 12 Birch Lane (2.0 km)</div>
+      <div style="font-size:11px;color:var(--muted);font-family:var(--font-mono);margin-top:8px;">Total: 11.6 km · Est. 1h 55min</div>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- S15 TECHNICIAN JOB DASHBOARD -->
+<div class="screen" id="s15">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-user"><div class="sb-avatar">ST</div><div class="sb-role">Technician</div><div class="sb-name">Sam Technician</div></div>
+    <div class="sb-nav">
+      <a class="sb-link on"><span class="icon">🔧</span>My Jobs</a>
+      <a class="sb-link"><span class="icon">⛽</span>Fuel Voucher</a>
+      <a class="sb-link"><span class="icon">⚙️</span>Settings</a>
+      <div class="sb-sep"></div>
+      <a class="sb-link sb-out"><span class="icon">🚪</span>Sign Out</a>
+    </div>
+    <div class="sb-footer">ARMS v2.0 · Technician</div>
+  </nav>
+  <main class="main">
+    <div class="sbadge"><span class="sn">15</span><span class="st">Technician Job Dashboard — US-12</span></div>
+    <div class="ph"><div><div class="pt">My Jobs — Apr 6, 2026</div><div class="ps">Your assigned maintenance and replacement jobs for today.</div></div></div>
+    <div class="kpis" style="grid-template-columns:repeat(3,1fr);">
+      <div class="kpi"><div class="kv">5</div><div class="kl">Assigned Today</div></div>
+      <div class="kpi warn"><div class="kv">2</div><div class="kl">In Progress</div></div>
+      <div class="kpi ok"><div class="kv">1</div><div class="kl">Completed</div></div>
+    </div>
+    <div class="jcard"><div><div class="mono" style="font-size:11px;color:var(--muted);">MR-00089 · Maintenance</div><div style="font-weight:700;margin:3px 0;">Cracked lid — 123 Maple St</div><div style="font-size:12px;color:var(--muted);">Jane Resident · Blue Box (RCY-2024-0042)</div></div><span class="badge b-blue">Assigned</span></div>
+    <div class="jcard amber"><div><div class="mono" style="font-size:11px;color:var(--muted);">RR-00044 · Replacement</div><div style="font-weight:700;margin:3px 0;">Grey bin replacement — 45 Oak Ave</div><div style="font-size:12px;color:var(--muted);">Bob Smith · Grey Bin (GRB-2023-0118)</div></div><span class="badge b-amber">In Progress</span></div>
+    <div class="jcard green"><div><div class="mono" style="font-size:11px;color:var(--muted);">MR-00071 · Maintenance</div><div style="font-weight:700;margin:3px 0;">Wheel repair — 78 Pine Rd</div><div style="font-size:12px;color:var(--muted);">Carol White · Green Bin (ORG-2024-0077)</div></div><span class="badge b-green">Completed</span></div>
+  </main>
+</div>
+</div>
+
+<!-- S16 JOB DETAIL -->
+<div class="screen" id="s16">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-user"><div class="sb-avatar">ST</div><div class="sb-role">Technician</div><div class="sb-name">Sam Technician</div></div>
+    <div class="sb-nav">
+      <a class="sb-link on"><span class="icon">🔧</span>My Jobs</a>
+      <a class="sb-link"><span class="icon">⛽</span>Fuel Voucher</a>
+      <a class="sb-link"><span class="icon">⚙️</span>Settings</a>
+    </div>
+  </nav>
+  <main class="main">
+    <div class="sbadge"><span class="sn">16</span><span class="st">Job Detail — MR-00089 — US-12, US-13</span></div>
+    <div class="ph"><div><div class="pt">Job MR-00089</div><div class="ps">Maintenance request detail and status update.</div></div><div class="ph-actions"><button class="btn btn-secondary">← Back to Jobs</button></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;margin-bottom:14px;">Job Details</div>
+        <div class="fg"><label>Resident Name</label><input class="ro" value="Jane Resident" readonly></div>
+        <div class="fg"><label>Address</label><input class="ro" value="123 Maple Street, Toronto, ON M5V 1A1" readonly></div>
+        <div class="fg-row">
+          <div><label>Container Type</label><input class="ro" value="Blue Box (Recycling)" readonly></div>
+          <div><label>Serial No.</label><input class="ro" value="RCY-2024-0042" readonly></div>
+        </div>
+        <div class="fg"><label>Job Type</label><input class="ro" value="Maintenance — Cracked Lid" readonly></div>
+        <div class="fg"><label>Dispatcher Notes</label><textarea class="ro" readonly>Resident reports lid cracked on left hinge. Check for full replacement eligibility.</textarea></div>
+      </div>
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;margin-bottom:14px;">Update Job Status</div>
+        <div style="margin-bottom:14px;"><label>Current Status</label><div style="margin-top:7px;"><span class="badge b-blue" style="font-size:13px;padding:5px 14px;">Assigned</span></div></div>
+        <div class="fg"><label>Update Status To <span class="req">*</span></label><select><option>Select new status…</option><option>In Progress</option><option>Completed</option><option>Requires Follow-Up</option><option>Parts Needed</option></select></div>
+        <div class="fg"><label>Technician Notes</label><textarea placeholder="Add notes (required for follow-up statuses, min 15 chars)…"></textarea><div class="hint">Mandatory for Requires Follow-Up or Parts Needed.</div></div>
+        <button class="btn btn-primary btn-full">Submit Status Update</button>
+        <div class="ban ban-green" style="margin-top:12px;">✅ Status updated. Resident portal will reflect this within 5 seconds.</div>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- S17 FUEL VOUCHER -->
+<div class="screen" id="s17">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-user"><div class="sb-avatar">ST</div><div class="sb-role">Technician</div><div class="sb-name">Sam Technician</div></div>
+    <div class="sb-nav">
+      <a class="sb-link"><span class="icon">🔧</span>My Jobs</a>
+      <a class="sb-link on"><span class="icon">⛽</span>Fuel Voucher</a>
+      <a class="sb-link"><span class="icon">⚙️</span>Settings</a>
+    </div>
+  </nav>
+  <main class="main">
+    <div class="sbadge"><span class="sn">17</span><span class="st">Fuel Credit Voucher Entry — US-14</span></div>
+    <div class="pt">Enter Fuel Credit Voucher</div><div class="ps">Submit fuel receipts for reimbursement processing.</div>
+    <div class="card" style="max-width:520px;">
+      <div class="fg"><label>Truck ID <span class="req">*</span></label><select><option>Select truck…</option><option>T-01 — ABC 1234</option><option>T-04 — DEF 5678</option><option>T-07 — GHI 9012</option></select></div>
+      <div class="fg"><label>Voucher Date <span class="req">*</span></label><input type="date" value="2026-04-06"><div class="hint">Cannot select future dates.</div></div>
+      <div class="fg"><label>Fuel Volume (Litres) <span class="req">*</span></label><input type="number" placeholder="e.g. 65" min="1"><div class="hint">Minimum 1 litre.</div></div>
+      <div class="fg"><label>Gas Station <span class="req">*</span></label><select><option>Select FuelFirst Canada location…</option><option>FuelFirst — King St W</option><option>FuelFirst — Dufferin St</option><option>FuelFirst — Eglinton Ave</option></select></div>
+      <div class="fg"><label>Employee Full Name <span class="req">*</span></label><input type="text" value="Sam Technician"></div>
+      <button class="btn btn-primary btn-full">Submit Voucher</button>
+      <div style="text-align:center;margin-top:12px;"><a class="lnk">View previously submitted vouchers →</a></div>
+      <div class="divider"></div>
+      <div class="confcard"><div style="font-size:15px;font-weight:700;color:#065F46;">⛽ Voucher Submitted Successfully</div><div class="confref">FV-20260406-00391</div><div class="confmsg">Keep this reference for your records.</div></div>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- S18 HOLIDAY CONFIG -->
+<div class="screen" id="s18">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-user"><div class="sb-avatar">PM</div><div class="sb-role">Manager</div><div class="sb-name">Pat Manager</div></div>
+    <div class="sb-nav">
+      <a class="sb-link on"><span class="icon">📅</span>Holiday Config</a>
+      <a class="sb-link"><span class="icon">💰</span>Financial Reports</a>
+      <a class="sb-link"><span class="icon">⚙️</span>Settings</a>
+      <div class="sb-sep"></div>
+      <a class="sb-link sb-out"><span class="icon">🚪</span>Sign Out</a>
+    </div>
+    <div class="sb-footer">ARMS v2.0 · Manager</div>
+  </nav>
+  <main class="main">
+    <div class="sbadge"><span class="sn">18</span><span class="st">Holiday Schedule Configuration — US-11</span></div>
+    <div class="pt">Statutory Holiday Configuration</div>
+    <div style="display:grid;grid-template-columns:1fr 290px;gap:16px;">
+      <div>
+        <div class="card">
+          <div style="font-size:14px;font-weight:700;margin-bottom:14px;">2026 Calendar — April</div>
+          <div class="calgrid">
+            <div class="calh">Sun</div><div class="calh">Mon</div><div class="calh">Tue</div><div class="calh">Wed</div><div class="calh">Thu</div><div class="calh">Fri</div><div class="calh">Sat</div>
+            <div class="cald dim">29</div><div class="cald dim">30</div><div class="cald dim">31</div><div class="cald">1</div><div class="cald">2</div><div class="cald">3</div><div class="cald">4</div>
+            <div class="cald">5</div><div class="cald tod">6</div><div class="cald">7</div><div class="cald">8</div><div class="cald">9</div><div class="cald hol" title="Good Friday">10</div><div class="cald">11</div>
+            <div class="cald hol" title="Easter Sunday">12</div><div class="cald hol" title="Easter Monday">13</div><div class="cald">14</div><div class="cald">15</div><div class="cald">16</div><div class="cald">17</div><div class="cald">18</div>
+            <div class="cald">19</div><div class="cald">20</div><div class="cald">21</div><div class="cald">22</div><div class="cald">23</div><div class="cald">24</div><div class="cald">25</div>
+            <div class="cald">26</div><div class="cald">27</div><div class="cald">28</div><div class="cald">29</div><div class="cald">30</div><div class="cald dim">1</div><div class="cald dim">2</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--muted);"><div style="width:13px;height:13px;border-radius:3px;background:var(--amber-lt);border:1px solid #FCD34D;"></div> Statutory Holiday &nbsp; <div style="width:13px;height:13px;border-radius:3px;background:var(--blue);"></div> Today</div>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden;">
+          <div style="padding:14px 16px;font-size:14px;font-weight:700;border-bottom:1px solid var(--line);">Configured Holidays</div>
+          <table><thead><tr><th>Holiday Name</th><th>Date</th><th>Affected Pickups</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td>Good Friday</td><td>Apr 10, 2026</td><td>47 pickups</td><td><button class="btn btn-secondary btn-sm">Edit</button> &nbsp;<button class="btn btn-danger btn-sm">Delete</button></td></tr>
+            <tr><td>Easter Monday</td><td>Apr 13, 2026</td><td>52 pickups</td><td><button class="btn btn-secondary btn-sm">Edit</button> &nbsp;<button class="btn btn-danger btn-sm">Delete</button></td></tr>
+            <tr><td>Victoria Day</td><td>May 18, 2026</td><td>61 pickups</td><td><button class="btn btn-secondary btn-sm">Edit</button> &nbsp;<button class="btn btn-danger btn-sm">Delete</button></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div style="font-size:14px;font-weight:700;margin-bottom:14px;">Add Holiday</div>
+          <div class="fg"><label>Date <span class="req">*</span></label><input type="date"></div>
+          <div class="fg"><label>Holiday Name <span class="req">*</span></label><input type="text" placeholder="e.g. Canada Day"></div>
+          <button class="btn btn-primary btn-full">Save Holiday</button>
+        </div>
+        <div class="ban ban-amber">
+          <div><strong>📋 Rescheduling Rules</strong><br>Pickups on a statutory holiday are automatically rescheduled to the next working day. Residents are notified <strong>7 days in advance</strong>.</div>
+        </div>
+        <button class="btn btn-primary btn-full">Save All Changes</button>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- S19 FINANCIAL REPORTS -->
+<div class="screen" id="s19">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-user"><div class="sb-avatar">PM</div><div class="sb-role">Manager</div><div class="sb-name">Pat Manager</div></div>
+    <div class="sb-nav">
+      <a class="sb-link"><span class="icon">📅</span>Holiday Config</a>
+      <a class="sb-link on"><span class="icon">💰</span>Financial Reports</a>
+      <a class="sb-link"><span class="icon">⚙️</span>Settings</a>
+    </div>
+  </nav>
+  <main class="main">
+    <div class="sbadge"><span class="sn">19</span><span class="st">Financial Reports Dashboard — US-15</span></div>
+    <div class="pt">Financial Reports — Fees &amp; Vouchers</div>
+    <div class="card" style="max-width:620px;">
+      <div style="margin-bottom:18px;">
+        <label style="margin-bottom:9px;display:block;">Report Type</label>
+        <div style="display:flex;gap:24px;">
+          <label style="display:flex;align-items:center;gap:7px;text-transform:none;letter-spacing:0;font-weight:600;"><input type="radio" name="rt" checked> ⛽ Fuel Credit Vouchers</label>
+          <label style="display:flex;align-items:center;gap:7px;text-transform:none;letter-spacing:0;font-weight:600;"><input type="radio" name="rt"> 🗑️ Container Replacement Fees</label>
+        </div>
+      </div>
+      <div class="fg-row">
+        <div><label>Start Date <span class="req">*</span></label><input type="date" value="2026-03-01"></div>
+        <div><label>End Date <span class="req">*</span></label><input type="date" value="2026-04-06"></div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary">Generate Report</button>
+        <button class="btn btn-secondary" disabled>Export to CSV</button>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- S20 FUEL VOUCHER REPORT -->
+<div class="screen" id="s20">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-user"><div class="sb-avatar">PM</div><div class="sb-role">Manager</div><div class="sb-name">Pat Manager</div></div>
+    <div class="sb-nav">
+      <a class="sb-link"><span class="icon">📅</span>Holiday Config</a>
+      <a class="sb-link on"><span class="icon">💰</span>Financial Reports</a>
+      <a class="sb-link"><span class="icon">⚙️</span>Settings</a>
+    </div>
+  </nav>
+  <main class="main">
+    <div class="sbadge"><span class="sn">20</span><span class="st">Fuel Credit Voucher Report Output — US-15</span></div>
+    <div class="ph">
+      <div><div class="pt">Fuel Credit Voucher Report</div><div class="ps">Mar 1, 2026 — Apr 6, 2026 · Generated: Apr 6, 2026 14:45</div></div>
+      <div class="ph-actions"><button class="btn btn-secondary">← Back</button><button class="btn btn-primary">Export to CSV</button></div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table>
+        <tbody>
+          <tr class="rgh"><td colspan="4">🚛 Truck T-01 — Tom Brown</td></tr>
+          <tr><th>Voucher Date</th><th>Employee Name</th><th>Station Name</th><th>Fuel Volume (L)</th></tr>
+          <tr><td>Mar 5, 2026</td><td>Tom Brown</td><td>FuelFirst — King St W</td><td>68.5 L</td></tr>
+          <tr class="alt"><td>Mar 19, 2026</td><td>Tom Brown</td><td>FuelFirst — Eglinton Ave</td><td>72.0 L</td></tr>
+          <tr><td>Apr 2, 2026</td><td>Tom Brown</td><td>FuelFirst — King St W</td><td>65.3 L</td></tr>
+          <tr class="rst"><td colspan="3" style="font-weight:700;">Total for Truck T-01: 3 vouchers</td><td style="font-weight:700;">205.8 L</td></tr>
+          <tr class="rgh"><td colspan="4">🚛 Truck T-04 — Lisa Chen</td></tr>
+          <tr><th>Voucher Date</th><th>Employee Name</th><th>Station Name</th><th>Fuel Volume (L)</th></tr>
+          <tr><td>Mar 8, 2026</td><td>Lisa Chen</td><td>FuelFirst — Dufferin St</td><td>59.0 L</td></tr>
+          <tr class="alt"><td>Mar 22, 2026</td><td>Lisa Chen</td><td>FuelFirst — Lawrence Ave</td><td>63.5 L</td></tr>
+          <tr class="rst"><td colspan="3" style="font-weight:700;">Total for Truck T-04: 2 vouchers</td><td style="font-weight:700;">122.5 L</td></tr>
+          <tr class="rtot"><td colspan="3">Grand Total: 5 vouchers across 2 trucks</td><td>328.3 L</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- S21 REPLACEMENT FEE REPORT -->
+<div class="screen" id="s21">
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-user"><div class="sb-avatar">PM</div><div class="sb-role">Manager</div><div class="sb-name">Pat Manager</div></div>
+    <div class="sb-nav">
+      <a class="sb-link"><span class="icon">📅</span>Holiday Config</a>
+      <a class="sb-link on"><span class="icon">💰</span>Financial Reports</a>
+      <a class="sb-link"><span class="icon">⚙️</span>Settings</a>
+    </div>
+  </nav>
+  <main class="main">
+    <div class="sbadge"><span class="sn">21</span><span class="st">Container Replacement Fee Report Output — US-15</span></div>
+    <div class="ph">
+      <div><div class="pt">Container Replacement Fee Report</div><div class="ps">Mar 1, 2026 — Apr 6, 2026 · Generated: Apr 6, 2026 14:47</div></div>
+      <div class="ph-actions"><button class="btn btn-secondary">← Back</button><button class="btn btn-primary">Export to CSV</button></div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table>
+        <thead><tr><th>Date</th><th>Resident Name</th><th>Civic Address</th><th>Container Type</th><th>Size</th><th>Fee Collected</th></tr></thead>
+        <tbody>
+          <tr><td>Mar 3, 2026</td><td>Alice Johnson</td><td>55 Birch Lane, Toronto</td><td>♻️ Blue Box</td><td>Large</td><td style="font-weight:700;">$40.00</td></tr>
+          <tr class="alt"><td>Mar 11, 2026</td><td>Bob Smith</td><td>45 Oak Ave, Toronto</td><td>🗑️ Grey Bin</td><td>Medium</td><td style="font-weight:700;">$40.00</td></tr>
+          <tr><td>Mar 18, 2026</td><td>Carol White</td><td>78 Pine Rd, Toronto</td><td>🌿 Green Bin</td><td>Small</td><td style="font-weight:700;">$40.00</td></tr>
+          <tr class="alt"><td>Mar 25, 2026</td><td>Dan Miller</td><td>12 Elm Blvd, Toronto</td><td>♻️ Blue Box</td><td>Large</td><td style="font-weight:700;">$40.00</td></tr>
+          <tr><td>Apr 1, 2026</td><td>Eva Brown</td><td>99 Cedar Cres, Toronto</td><td>🗑️ Grey Bin</td><td>Large</td><td style="font-weight:700;">$40.00</td></tr>
+          <tr class="rtot"><td colspan="5">Total Replacement Fee Revenue (5 replacements)</td><td>$200.00</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+</div>
+
+  </div><!-- /bviewport -->
+</div><!-- /browser -->
+</div><!-- /outer -->
+
+<script>
+const screens = {
+  c: [
+    {id:'s1',  label:'01 Registration',   url:'arm-system.ca/citizen/register'},
+    {id:'s2',  label:'02 Login',           url:'arm-system.ca/citizen/login'},
+    {id:'s3',  label:'03 Dashboard',       url:'arm-system.ca/citizen/dashboard'},
+    {id:'s4',  label:'04 Missed Pickup',   url:'arm-system.ca/citizen/report-missed'},
+    {id:'s5',  label:'05 My Requests',     url:'arm-system.ca/citizen/requests'},
+    {id:'s6',  label:'06 Maintenance',     url:'arm-system.ca/citizen/maintenance'},
+    {id:'s7',  label:'07 Replacement',     url:'arm-system.ca/citizen/replacement'},
+    {id:'s8',  label:'08 Notifications',   url:'arm-system.ca/citizen/notifications'},
+  ],
+  d: [
+    {id:'s9',  label:'09 Dashboard',       url:'arm-system.ca/dispatch/dashboard'},
+    {id:'s10', label:'10 Schedule Builder',url:'arm-system.ca/dispatch/schedules'},
+    {id:'s11', label:'11 Truck Assignment',url:'arm-system.ca/dispatch/trucks'},
+    {id:'s12', label:'12 GPS Fleet Map',   url:'arm-system.ca/dispatch/fleet-map'},
+    {id:'s13', label:'13 Complaints',      url:'arm-system.ca/dispatch/complaints'},
+    {id:'s14', label:'14 Routes',          url:'arm-system.ca/dispatch/routes'},
+  ],
+  t: [
+    {id:'s15', label:'15 Job Dashboard',   url:'arm-system.ca/tech/jobs'},
+    {id:'s16', label:'16 Job Detail',      url:'arm-system.ca/tech/jobs/MR-00089'},
+    {id:'s17', label:'17 Fuel Voucher',    url:'arm-system.ca/tech/fuel-voucher'},
+  ],
+  m: [
+    {id:'s18', label:'18 Holiday Config',  url:'arm-system.ca/manager/holidays'},
+    {id:'s19', label:'19 Reports',         url:'arm-system.ca/manager/reports'},
+    {id:'s20', label:'20 Fuel Report',     url:'arm-system.ca/manager/reports/fuel'},
+    {id:'s21', label:'21 Fee Report',      url:'arm-system.ca/manager/reports/fees'},
+  ]
+};
+
+let cur = 'c';
+
+function showGroup(g) {
+  cur = g;
+  // update group buttons
+  document.querySelectorAll('.grp-btn').forEach(b => b.classList.remove('on'));
+  document.querySelector('.grp-btn.' + g).classList.add('on');
+  // rebuild tabs
+  const stabs = document.getElementById('stabs');
+  stabs.innerHTML = '';
+  screens[g].forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'stab';
+    btn.textContent = s.label;
+    btn.id = 'stab-' + s.id;
+    btn.onclick = () => goScreen(s.id, s.url, s.label);
+    stabs.appendChild(btn);
+  });
+  goScreen(screens[g][0].id, screens[g][0].url, screens[g][0].label);
+}
+
+function goScreen(id, url, label) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('on');
+  document.querySelectorAll('.stab').forEach(b => b.classList.remove('on'));
+  const tb = document.getElementById('stab-' + id);
+  if (tb) { tb.classList.add('on'); tb.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }
+  document.getElementById('bc-url').textContent = url;
+  document.getElementById('bc-label').textContent = 'Screen ' + label.split(' ')[0];
+  document.getElementById('bviewport').scrollTop = 0;
+}
+
+showGroup('c');
+</script>
+</body>
+</html>
